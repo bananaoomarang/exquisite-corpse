@@ -19,6 +19,12 @@
 
 (defn json-serialize [data]
   (.stringify js/JSON (clj->js data)))
+
+(defonce history (History.))
+
+(defn nav! [token]
+  (.setToken history token))
+
 ;; TODO: unify
 
 (defn GET [url]
@@ -92,13 +98,24 @@
       (swap! story assoc :story new-story)
       (log (:story @story)))))
 
-(defn load-story []
-  (go
-    (let [res       (<! (GET (str "/story/" (:id @story))))
-          new-story (:story res)]
-      (log 'OK')
-      (log res)
-      (swap! story assoc :story new-story))))
+(defn load-story
+  ([]
+   (go
+     (let [res       (<! (GET "/story"))
+           id        (:id res)
+           new-story (:story res)]
+       (load-story id new-story))))
+  
+  ([id]
+   (go
+     (let [res       (<! (GET (str "/story/" id)))
+           new-story (:story res)]
+       (load-story id new-story))))
+
+  ([id new-story]
+   (log "STORY LOADED")
+   (swap! story assoc :id id :story new-story)
+   (nav! (str "/story/" id))))
 
 (defn text-input [placeholder submit-handler]
    (let [val (atom "")]
@@ -125,11 +142,15 @@
       [:h3 line])]
    [:h3 (str "ID: " (:id @story))]
    [get-typin-box]
-   (button "New Story" create-story)])
+   [:div
+    (button "Load random" (fn []
+                            (load-story)))
+    (button "Create new story" create-story)]])
 
 ;; ROUTING
+
 (defn hook-browser-navigation! []
-  (doto (History.)
+  (doto history
     (events/listen
      EventType/NAVIGATE
      (fn [e]
@@ -140,18 +161,20 @@
   (secretary/set-config! :prefix "#")
 
   (defroute "/" []
-    (swap! app-state assoc :page :home))
+    (swap! app-state assoc :page :home)
+    (load-story))
   
   (defroute "/about" []
     (swap! app-state assoc :page :about))
 
   (defroute "/story" []
-    (swap! app-state assoc :page :home))
+    (swap! app-state assoc :page :home)
+    (load-story))
 
   (defroute "/story/:id" [id]
     (swap! app-state assoc :page :home)
-    (swap! story assoc :id id)
-    (load-story))
+    (if-not (= id (:id @story))
+      (load-story id)))
 
   (hook-browser-navigation!))
 
