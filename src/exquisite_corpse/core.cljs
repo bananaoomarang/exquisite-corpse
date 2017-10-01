@@ -35,7 +35,7 @@
   (let [type (:type action)
         body (:body action)]
     (condp = type
-      :add-line (log "added line")
+      :add-line (log "add line")
       :ping (log "pong")
       (log (str "Unexpected user action: " type)))))
 
@@ -199,8 +199,8 @@
     (button "Load random" (fn []
                             (load-story)))
     (button "Create new story" create-story)
-    (button "Ping others" #(send-message! {:type :ping
-                                           :body {:ping "pong"}}))]])
+    (button "Ping" #(send-message! {:type :ping
+                                    :body {:ping "pong"}}))]])
 
 ;; ROUTING
 
