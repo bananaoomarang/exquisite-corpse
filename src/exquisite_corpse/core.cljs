@@ -35,14 +35,15 @@
   (let [type (:type action)
         body (:body action)]
     (condp = type
-      "ADD_LINE" (log "added line")
+      :add-line (log "added line")
+      :ping (log "pong")
       (log (str "Unexpected user action: " type)))))
 
 (defn message-router [{:keys [type message user-id]}]
   (condp = type
-    "user-joined" (log (str "User joined: "  user-id))
-    "user-left"   (log (str "User left :(: " user-id))
-    "user-action" (handle-user-action user-id message)
+    :user-joined (log (str "User joined: "  user-id))
+    :user-left   (log (str "User left :(: " user-id))
+    :user-action (handle-user-action user-id message)
 
     (log (str "Unrecognized message type :(: " type))))
 
@@ -65,7 +66,7 @@
 
 (defn init-websocket []
   (go
-    (let [{:keys [ws-channel error]} (<! (ws-ch "ws://localhost:3000/chord" {:format :json-kw}))]
+    (let [{:keys [ws-channel error]} (<! (ws-ch "ws://localhost:3000/chord" {:format :transit-json}))]
       (if error
         (elog error)
 
