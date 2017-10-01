@@ -15,6 +15,15 @@
 
 (def API "http://localhost:3000")
 
+(defonce app-state (atom {
+                          :title   "Exquisite Corpse"
+                          :viewing false
+                          :current-room nil}))
+
+(defonce story (atom {:story []
+                      :id ""}))
+
+
 (defn log [& d]
   (apply (.-log js/console) (map clj->js d)))
 
@@ -29,13 +38,14 @@
 (defn nav! [token]
   (.setToken history token))
 
-(def new-msg-ch (chan))
-
 (defn handle-user-action [id action]
   (let [type (:type action)
         body (:body action)]
     (condp = type
-      :add-line (log "add line")
+      :add-line (do
+                  (log "OK")
+                  (log body)
+                  (swap! story assoc :story (conj (:story @story) (:line body))))
       :ping (log "pong")
       (log (str "Unexpected user action: " type)))))
 
@@ -58,25 +68,33 @@
           (close! ws-channel)
           (log "DISCONNECTED"))))))
 
-(defn send-messages [ws-channel]
-  (go-loop []
-    (when-let [msg (<! new-msg-ch)]
-      (>! ws-channel msg)
-      (recur))))
-
-(defn init-websocket []
+(defn init-websocket [id]
   (go
-    (let [{:keys [ws-channel error]} (<! (ws-ch "ws://localhost:3000/chord" {:format :transit-json}))]
+    (let [{:keys [ws-channel error]} (<! (ws-ch (str "ws://localhost:3000/chord/" id) {:format :transit-json}))]
       (if error
         (elog error)
 
         (do
           (receive-messages ws-channel)
-          (send-messages    ws-channel))))))
+          (swap! app-state assoc :current-room {:id id :ws-channel ws-channel}))))))
 
 (defn send-message! [msg]
-  (go
-    (>! new-msg-ch msg)))
+  (let [room (:current-room @app-state)]
+    (if-not room
+      (log "Not in a room yet :(")
+
+      (go
+        (>! (:ws-channel room) msg)))))
+
+(defn handle-room-switch [new-id]
+  (let [room (:current-room @app-state)]
+
+    (if-not room
+      (init-websocket new-id)
+
+      (when-not (= new-id (:id room))
+        (close! (:ws-channel room))
+        (init-websocket new-id)))))
 
 ;; TODO: unify
 
@@ -125,15 +143,6 @@
   (go
     (log (<! (PATCH s body)))))
 
-;; define your app data so that it doesn't get over-written on reload
-
-(defonce app-state (atom {
-                          :title   "Exquisite Corpse"
-                          :viewing false }))
-
-(defonce story (atom {:story []
-                      :id ""}))
-
 (defn button [text handler]
   [:button.btn {:onClick handler} text])
 
@@ -168,7 +177,8 @@
   ([id new-story]
    (log "STORY LOADED")
    (swap! story assoc :id id :story new-story)
-   (nav! (str "/story/" id))))
+   (nav! (str "/story/" id))
+   (handle-room-switch id)))
 
 (defn text-input [placeholder submit-handler]
    (let [val (atom "")]
@@ -184,7 +194,9 @@
                        (reset! val ""))]])))
 
 (def get-typin-box (text-input "Get typin’" (fn [val]
-                                              (update-story val))))
+                                              (update-story val)
+                                              (send-message! {:type :add-line
+                                                              :body {:line val}}))))
 
 (defn hello-world []
   [:div
@@ -239,7 +251,6 @@
 (defmethod current-page :about []
   [get-typin-box])
 
-(init-websocket)
 (app-routes)
 (reagent/render [current-page]
                           (. js/document (getElementById "app")))
