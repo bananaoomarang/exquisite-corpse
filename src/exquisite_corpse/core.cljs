@@ -2,20 +2,24 @@
   (:require [reagent.core :as reagent :refer [atom]]
             [goog.net.XhrIo :as xhr]
             [goog.json :as json]
-            [cljs.core.async :as async :refer [>! <! chan close!]]
+            [cljs.core.async :as async :refer [>! <! put! chan close!]]
             [secretary.core :as secretary]
             [goog.events :as events]
-            [goog.history.EventType :as EventType])
+            [goog.history.EventType :as EventType]
+            [chord.client :refer [ws-ch]])
   (:import goog.History)
-  (:require-macros [cljs.core.async.macros :refer [go alt!]]
+  (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]
                    [secretary.core :refer [defroute]]))
 
 (enable-console-print!)
 
 (def API "http://localhost:3000")
 
-(defn log [d]
-  (.log js/console d))
+(defn log [& d]
+  (apply (.-log js/console) (map clj->js d)))
+
+(defn elog [& d]
+  (apply (.-error js/console) (map clj->js d)))
 
 (defn json-serialize [data]
   (.stringify js/JSON (clj->js data)))
@@ -24,6 +28,54 @@
 
 (defn nav! [token]
   (.setToken history token))
+
+(def new-msg-ch (chan))
+
+(defn handle-user-action [id action]
+  (let [type (:type action)
+        body (:body action)]
+    (condp = type
+      "ADD_LINE" (log "added line")
+      (log (str "Unexpected user action: " type)))))
+
+(defn message-router [{:keys [type message user-id]}]
+  (condp = type
+    "user-joined" (log (str "User joined: "  user-id))
+    "user-left"   (log (str "User left :(: " user-id))
+    "user-action" (handle-user-action user-id message)
+
+    (log (str "Unrecognized message type :(: " type))))
+
+(defn receive-messages [ws-channel]
+  (go-loop []
+    (let [{:keys [message]} (<! ws-channel)]
+      (if message
+        (do
+          (message-router message)
+          (recur))
+        (do
+          (close! ws-channel)
+          (log "DISCONNECTED"))))))
+
+(defn send-messages [ws-channel]
+  (go-loop []
+    (when-let [msg (<! new-msg-ch)]
+      (>! ws-channel msg)
+      (recur))))
+
+(defn init-websocket []
+  (go
+    (let [{:keys [ws-channel error]} (<! (ws-ch "ws://localhost:3000/chord" {:format :json-kw}))]
+      (if error
+        (elog error)
+
+        (do
+          (receive-messages ws-channel)
+          (send-messages    ws-channel))))))
+
+(defn send-message! [msg]
+  (go
+    (>! new-msg-ch msg)))
 
 ;; TODO: unify
 
@@ -145,7 +197,9 @@
    [:div
     (button "Load random" (fn []
                             (load-story)))
-    (button "Create new story" create-story)]])
+    (button "Create new story" create-story)
+    (button "Ping others" #(send-message! {:type :ping
+                                           :body {:ping "pong"}}))]])
 
 ;; ROUTING
 
@@ -184,6 +238,7 @@
 (defmethod current-page :about []
   [get-typin-box])
 
+(init-websocket)
 (app-routes)
 (reagent/render [current-page]
                           (. js/document (getElementById "app")))

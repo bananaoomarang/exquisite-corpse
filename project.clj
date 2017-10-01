@@ -10,7 +10,8 @@
                  [org.clojure/clojurescript "1.9.908"]
                  [org.clojure/core.async  "0.3.443"]
                  [reagent "0.7.0"]
-                 [secretary "1.2.3"]]
+                 [secretary "1.2.3"]
+                 [jarohen/chord "0.8.1"]]
 
   :plugins [[lein-figwheel "0.5.13"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
@@ -29,7 +30,7 @@
                            ;; in the default browser once Figwheel has
                            ;; started and compiled your application.
                            ;; Comment this out once it no longer serves you.
-                           :open-urls ["http://localhost:3449/index.html"]}
+                           ;;:open-urls ["http://localhost:3449/index.html"]}
 
                 :compiler {:main exquisite-corpse.core
                            :asset-path "js/compiled/out"
