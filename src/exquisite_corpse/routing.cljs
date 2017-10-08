@@ -27,7 +27,7 @@
 (defmethod current-page :home []
   [app-root])
 
-(defn app-routes []
+(defn init-app-routes []
   (secretary/set-config! :prefix "#")
 
   (defroute "/" []
