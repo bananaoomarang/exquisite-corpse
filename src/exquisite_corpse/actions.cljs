@@ -2,7 +2,7 @@
   (:require
    [exquisite-corpse.state :refer [app-state story]]
    [exquisite-corpse.util :refer [log elog]]
-   [exquisite-corpse.rest :refer [GET]])
+   [exquisite-corpse.rest :refer [GET POST PATCH]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
 (defn load-story
@@ -27,11 +27,12 @@
     (let [res       (<! (POST "/story" {:story ["Once upon a time..."]}))
           id        (:id res)
           new-story (:story res)]
+      (log res)
       (swap! story assoc :id id :story new-story))))
 
 (defn update-story [next-line]
   (go
     (let [res       (<! (PATCH (str "/story/" (:id @story)) {:nextLine next-line}))
           new-story (:story res)]
-      (swap! story assoc :story new-story)
-      (log (:story @story)))))
+      (log res)
+      (swap! story assoc :story new-story))))
