@@ -46,16 +46,20 @@
   [:h3 line])
 
 (defn app-root []
-  [:div
-   [:h1 "Exquisite Corpse"]
-   [:div
-    (map-indexed line (get-story-lines))]
-   [:h3 (str "ID: " (:id @story))]
-   [get-typin-box]
-   [:div
-    (button "Load random" (fn []
-                            (load-story)))
-    (button "Create new story" create-story)
-    (button "Ping" #(sockets/send-message! app-state
-                                           {:type :ping
-                                            :body {:ping "pong"}}))]])
+  (let [line-count (count (:story @story))
+        id         (:id @story)]
+    [:div
+     [:h1 "Exquisite Corpse"]
+     [:div
+      (map-indexed line (get-story-lines))]
+     [:h3 (str "ID: " id)]
+     
+     (if (< line-count 10) [get-typin-box])
+
+     [:div
+      (button "Load random" (fn []
+                              (load-story)))
+      (button "Create new story" create-story)
+      (button "Ping" #(sockets/send-message! app-state
+                                             {:type :ping
+                                              :body {:ping "pong"}}))]]))
