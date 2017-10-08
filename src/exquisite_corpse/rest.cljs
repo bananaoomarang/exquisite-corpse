@@ -17,7 +17,7 @@
 
 (defn make-xhr!
   ([ch method url]
-   (log (str method url))
+   (log (str method " " url))
    (xhr/send url (get-req-handler ch) method))
   
   ([ch method url body]

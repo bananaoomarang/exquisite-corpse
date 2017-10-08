@@ -24,15 +24,13 @@
 
 (defn create-story []
   (go
-    (let [res       (<! (POST "/story" {:story ["Once upon a time..."]}))
+    (let [res       (<! (POST "/story" {:story ["Once upon a time"]}))
           id        (:id res)
           new-story (:story res)]
-      (log res)
       (swap! story assoc :id id :story new-story))))
 
 (defn update-story [next-line]
   (go
     (let [res       (<! (PATCH (str "/story/" (:id @story)) {:nextLine next-line}))
           new-story (:story res)]
-      (log res)
       (swap! story assoc :story new-story))))

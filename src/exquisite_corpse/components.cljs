@@ -16,15 +16,16 @@
    (let [val (atom "")]
      (fn []
        [:div
-        [:textarea {:placeholder placeholder
-                    :value @val
-                    :on-change (fn [e]
-                                 (reset! val (.. e -target -value)))}]
-        [button "OK" (fn [e]
+        [:textarea.textarea
+         {:placeholder placeholder
+          :value @val
+          :on-change (fn [e]
+                       (reset! val (.. e -target -value)))}]
+        [button "Add line" (fn [e]
                        (submit-handler @val)
                        (reset! val ""))]])))
 
-(def get-typin-box (text-input "Get typin’" (fn [val]
+(def get-typin-box (text-input "Then what?" (fn [val]
                                               (update-story val)
                                               (sockets/send-message! app-state
                                                                      {:type :add-line
@@ -37,29 +38,29 @@
 
     (if viewing?
       lines
-      (take-last 1 lines))))
+      (map #(str % "…") (take-last 1 lines)))))
 
 (defn line [key line]
   "Display a line"
   ^{:key key}
   
-  [:h3 line])
+  [:p.story-line line])
 
 (defn app-root []
   (let [line-count (count (:story @story))
         id         (:id @story)]
     [:div
-     [:h1 "Exquisite Corpse"]
-     [:div
-      (map-indexed line (get-story-lines))]
-     [:h3 (str "ID: " id)]
+     [:div.text-center.title
+      [:h1 "Exquisite Corpse"]]
      
-     (if (< line-count 10) [get-typin-box])
-
-     [:div
-      (button "Load random" (fn []
+     [:div.btn-group.text-center
+      (button "Load random" (fn [_]
                               (load-story)))
-      (button "Create new story" create-story)
-      (button "Ping" #(sockets/send-message! app-state
-                                             {:type :ping
-                                              :body {:ping "pong"}}))]]))
+      (button "Create new story" create-story)]
+
+     [:div.story-wrapper
+      (map-indexed line (get-story-lines))]
+     
+     [:div.text-center
+      (if (< line-count 10) [get-typin-box])]]))
+

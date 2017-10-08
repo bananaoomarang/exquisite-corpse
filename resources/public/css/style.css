@@ -1,2 +1,64 @@
-/* some style */
+@import url('https://fonts.googleapis.com/css?family=Lora');
+@import url('https://fonts.googleapis.com/css?family=Fredericka+the+Great');
 
+html, body {
+    font-family: 'Lora', serif;
+}
+
+h1, h2 {
+    font-family: 'Fredericka the Great', cursive;
+    text-transform: uppercase;
+    font-weight: normal;
+}
+
+.btn {
+    font-family: inherit;
+    font-weight: bold;
+    transition: all 0.1s ease-in-out;
+    background: none;
+    border: 1px solid black;
+    padding: 0.5em;
+    margin: 0 1em;
+    vertical-align: top;
+    min-width: 8em;
+}
+
+.btn:hover, .btn:focus {
+    cursor: pointer;
+    background-color: #c9c9c9;
+    outline: none;
+}
+
+.btn:active {
+    background-color: #686868;
+    color: #fff;
+}
+
+.btn-group .btn {
+    margin: 0;
+    border-left: none
+}
+
+.btn-group .btn:first-child {
+    border-left: 1px solid black;
+}
+
+.textarea {
+    border: 1px solid black;
+    padding: 1em;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.story-wrapper {
+    margin: 1em auto;
+    width: 30em;
+    border-top: 1px solid #c9c9c9;
+    border-bottom: 1px solid #c9c9c9;
+}
+
+.story-line {
+    font-size: 20px;
+}
