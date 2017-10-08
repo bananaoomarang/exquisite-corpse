@@ -1,29 +1,16 @@
 (ns exquisite-corpse.components
   (:require
+   [reagent.core :refer [atom]]
+   
    [exquisite-corpse.state :refer [app-state story]]
    [exquisite-corpse.sockets :as sockets]
    [exquisite-corpse.rest :refer [GET POST PATCH]]
-   [exquisite-corpse.actions :refer [load-story]]
+   [exquisite-corpse.actions :refer [load-story create-story update-story]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
 (defn button [text handler]
   [:button.btn {:onClick handler} text])
-
-(defn create-story []
-  (go
-    (let [res       (<! (POST "/story" {:story ["Once upon a time..."]}))
-          id        (:id res)
-          new-story (:story res)]
-      (swap! story assoc :id id :story new-story))))
-
-(defn update-story [next-line]
-  (go
-    (let [res       (<! (PATCH (str "/story/" (:id @story)) {:nextLine next-line}))
-          new-story (:story res)]
-      (swap! story assoc :story new-story)
-      (log (:story @story)))))
-
 
 (defn text-input [placeholder submit-handler]
    (let [val (atom "")]
@@ -32,7 +19,6 @@
         [:textarea {:placeholder placeholder
                     :value @val
                     :on-change (fn [e]
-                                 (log "resetting!")
                                  (reset! val (.. e -target -value)))}]
         [button "OK" (fn [e]
                        (submit-handler @val)

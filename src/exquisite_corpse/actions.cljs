@@ -2,9 +2,7 @@
   (:require
    [exquisite-corpse.state :refer [app-state story]]
    [exquisite-corpse.util :refer [log elog]]
-   [exquisite-corpse.rest :refer [GET]]
-   [exquisite-corpse.routing :as routing]
-   [exquisite-corpse.sockets :as sockets])
+   [exquisite-corpse.rest :refer [GET]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
 (defn load-story
@@ -22,6 +20,18 @@
        (load-story id new-story))))
 
   ([id new-story]
-   (swap! story assoc :id id :story new-story)
-   (routing/nav! (str "/story/" id))
-   (sockets/handle-room-switch id)))
+   (swap! story assoc :id id :story new-story)))
+
+(defn create-story []
+  (go
+    (let [res       (<! (POST "/story" {:story ["Once upon a time..."]}))
+          id        (:id res)
+          new-story (:story res)]
+      (swap! story assoc :id id :story new-story))))
+
+(defn update-story [next-line]
+  (go
+    (let [res       (<! (PATCH (str "/story/" (:id @story)) {:nextLine next-line}))
+          new-story (:story res)]
+      (swap! story assoc :story new-story)
+      (log (:story @story)))))

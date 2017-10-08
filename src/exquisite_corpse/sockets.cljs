@@ -64,3 +64,6 @@
       (when-not (= new-id (:id room))
         (close! (:ws-channel room))
         (init-websocket app-state story new-id)))))
+
+(add-watch story :socket-watcher (fn [_ _ _ new-story]
+                                  (handle-room-switch (:id new-story))))

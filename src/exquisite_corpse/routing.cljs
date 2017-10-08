@@ -16,7 +16,6 @@
 (defn nav! [token]
   (.setToken history token))
 
-
 (defn hook-browser-navigation! []
   (doto history
     (events/listen
@@ -45,3 +44,6 @@
       (load-story id)))
 
   (hook-browser-navigation!))
+
+(add-watch story :route-watcher (fn [_ _ _ new-story]
+                                  (nav! (str "/story/" (:id new-story)))))
