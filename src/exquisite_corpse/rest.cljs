@@ -2,8 +2,8 @@
   (:require
    [goog.net.XhrIo :as xhr]
    [cljs.core.async :as async :refer [>! <! put! chan close!]]
-   
    [exquisite-corpse.util :refer [log elog json-serialize]])
+
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop alt!]]))
 
@@ -19,10 +19,10 @@
   ([ch method url]
    (log (str method " " url))
    (xhr/send url (get-req-handler ch) method))
-  
+
   ([ch method url body]
    (log (str method " " url " with body " body))
-   
+
    (xhr/send url (get-req-handler ch) method
              (json-serialize body)
              {"Content-Type" "application/json"})))
