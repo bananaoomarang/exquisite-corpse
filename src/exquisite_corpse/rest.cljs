@@ -9,13 +9,22 @@
 
 (def API "http://localhost:3000")
 
-(defn get-req-handler [ch]
-  (fn [e]
-    (let [res (js->clj (-> e .-target .getResponseJson) :keywordize-keys true)]
-      (go (>! ch res)
-          (close! ch)))))
+(defn- get-response-body [event]
+  (let [headers      (js->clj (-> event .-target .getResponseHeaders))
+        content-type (get headers "Content-Type")]
+    (if (and
+         (not (nil? content-type))
+         (clojure.string/includes? content-type "application/json"))
+      (js->clj (-> event .-target .getResponseJson) :keywordize-keys true)
 
-(defn make-xhr!
+      (-> event .-target .getResponse))))
+
+(defn- get-req-handler [ch]
+  (fn [event]
+    (let [res (get-response-body event)]
+      (put! ch res))))
+
+(defn- make-xhr!
   ([ch method url]
    (log (str method " " url))
    (xhr/send url (get-req-handler ch) method))
@@ -27,7 +36,7 @@
              (json-serialize body)
              {"Content-Type" "application/json"})))
 
-(defn req [method url & rest]
+(defn- req [method url & rest]
   (let [ch  (chan 1)
         url (str API url)
         body (first rest)]

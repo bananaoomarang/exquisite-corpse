@@ -5,7 +5,7 @@
    [exquisite-corpse.state :refer [app-state story]]
    [exquisite-corpse.sockets :as sockets]
    [exquisite-corpse.rest :refer [GET POST PATCH]]
-   [exquisite-corpse.effects :refer [create-story add-line get-story]]
+   [exquisite-corpse.effects :refer [create-story add-line load-story]]
    [exquisite-corpse.state-utils :refer [get-story-lines is-finished?]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
@@ -38,15 +38,6 @@
    [:input.btn {:type "submit"
                 :value "Update me"}]])
 
-(defn get-story-lines []
-  "Returns a list of lines to show"
-  (let [lines    (:lines @story)
-        viewing? (= 10 (count lines))]
-
-    (if viewing?
-      lines
-      (take-last 1 lines))))
-
 (defn line [key line]
   "Display a line"
   (log (:text line))
@@ -55,16 +46,18 @@
   [:p.story-line (:text line)])
 
 (defn app-root []
-  (let [line-count    (count (:story @story))
-        id            (:id @story)
-        display-lines (get-story-lines)]
+  (let [story         (:story @app-state)
+        line-count    (count (:lines story))
+        id            (:id story)
+        display-lines (get-story-lines story)]
+
     [:div
      [:div.text-center.title
       [:h1 (:title @app-state)]]
 
      [:div.btn-group.text-center
       (button "Load random" (fn [_]
-                                    (get-story)))
+                                    (load-story)))
       (button "Create new" create-story)]
 
      [:div.story-wrapper
@@ -75,3 +68,7 @@
            (< line-count 10)
            (not= (:user-id @app-state) (:author (last display-lines))))
         [get-typin-box])]]))
+
+(defn about-root []
+  [:div.about-container
+   [:p "TODO"]])

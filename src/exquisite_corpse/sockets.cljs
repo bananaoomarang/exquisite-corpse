@@ -3,7 +3,8 @@
    [chord.client :refer [ws-ch]]
    [cljs.core.async :as async :refer [>! <! put! chan close!]]
 
-   [exquisite-corpse.state :refer [app-state story]]
+   [exquisite-corpse.effects :refer [update-local-story]]
+   [exquisite-corpse.state :refer [app-state]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
@@ -11,11 +12,9 @@
   (let [type (:type action)
         body (:body action)]
     (condp = type
-      :add-line (do
-                  (log "OK")
-                  (log body)
-                  (swap! story assoc :story (conj (:story @story) (:line body))))
-      :ping (log "pong")
+      :add-line (update-local-story (assoc-in @app-state [:story :lines] (:line body)))
+      :ping     (log "pong")
+
       (log (str "Unexpected user action: " type)))))
 
 (defn handle-joined [user-id]
@@ -31,25 +30,25 @@
 
     (log (str "Unrecognized message type :(: " type))))
 
-(defn receive-messages [story ws-channel]
+(defn receive-messages [ws-channel]
   (go-loop []
     (let [{:keys [message]} (<! ws-channel)]
       (if message
         (do
-          (message-router story message)
+          (message-router (:story @app-state) message)
           (recur))
         (do
           (close! ws-channel)
           (log "DISCONNECTED"))))))
 
-(defn init-websocket [app-state story id]
+(defn init-websocket [id]
   (go
     (let [{:keys [ws-channel error]} (<! (ws-ch (str "ws://localhost:3000/chord/" id) {:format :transit-json}))]
       (if error
         (elog error)
 
         (do
-          (receive-messages story ws-channel)
+          (receive-messages ws-channel)
           (swap! app-state assoc :current-room {:id id :ws-channel ws-channel}))))))
 
 (defn send-message! [app-state msg]
@@ -64,11 +63,8 @@
   (let [room (:current-room @app-state)]
 
     (if-not room
-      (init-websocket app-state story new-id)
+      (init-websocket new-id)
 
       (when-not (= new-id (:id room))
         (close! (:ws-channel room))
-        (init-websocket app-state story new-id)))))
-
-(add-watch story :socket-watcher (fn [_ _ _ new-story]
-                                  (handle-room-switch (:id new-story))))
+        (init-websocket new-id)))))

@@ -4,8 +4,8 @@
    [goog.history.EventType :as EventType]
    [goog.events :as events]
 
+   [exquisite-corpse.effects :refer [load-story]]
    [exquisite-corpse.state :refer [app-state story]]
-   [exquisite-corpse.actions :refer [load-story]]
    [exquisite-corpse.components :refer [app-root]])
   (:import goog.History)
   (:require-macros
@@ -33,17 +33,13 @@
   (defroute "/" []
     (swap! app-state assoc :page :home)
     (load-story))
-  
+
   (defroute "/story" []
     (swap! app-state assoc :page :home)
     (load-story))
 
   (defroute "/story/:id" [id]
     (swap! app-state assoc :page :home)
-    (if-not (= id (:id @story))
-      (load-story id)))
+    (load-story id))
 
   (hook-browser-navigation!))
-
-(add-watch story :route-watcher (fn [_ _ _ new-story]
-                                  (nav! (str "/story/" (:id new-story)))))
