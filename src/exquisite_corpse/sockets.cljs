@@ -32,7 +32,9 @@
 
 (defn receive-messages [ws-channel]
   (go-loop []
-    (let [{:keys [message]} (<! ws-channel)]
+    (let [data    (<! ws-channel)
+          message (:message data)]
+      (log "MY DATA" data)
       (if message
         (do
           (message-router (:story @app-state) message)

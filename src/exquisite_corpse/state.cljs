@@ -9,4 +9,5 @@
 (defonce app-state (atom {:title        "Exquisite Corpse"
                           :user-id      nil
                           :current-room nil
-                          :story        default-story}))
+                          :story        default-story
+                          :top-stories  []}))

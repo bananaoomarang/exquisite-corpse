@@ -43,3 +43,9 @@
      (let [story (<! (api/get-story id))]
 
        (swap! app-state assoc :story story)))))
+
+(defn load-top-stories []
+  (go
+    (let [stories (<! (api/get-top-stories))]
+
+      (swap! app-state assoc :top-stories stories))))

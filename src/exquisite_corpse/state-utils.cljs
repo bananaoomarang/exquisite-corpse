@@ -12,3 +12,13 @@
     (if (is-finished? story)
       lines
       (take-last 1 lines))))
+
+(defn get-story-first-line [story]
+  (-> story
+      :lines
+      second
+      :text))
+
+(defn get-story-authors [{:keys [lines]}]
+  (exquisite-corpse.util/log lines)
+  (map :author lines))

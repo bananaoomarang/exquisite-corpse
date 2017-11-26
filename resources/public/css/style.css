@@ -62,3 +62,49 @@ h1, h2 {
 .story-line {
     font-size: 20px;
 }
+
+.top-stories {
+    margin: auto;
+}
+
+.cards {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}
+
+.card {
+    border: 1px solid black;
+    margin: 1em;
+    width: 20em;
+}
+
+.card:hover, .card:focus {
+    cursor: pointer;
+    background-color: #c9c9c9;
+    outline: none;
+}
+
+.card:active {
+    background-color: #686868;
+    color: #fff;
+}
+
+.card-title {
+    padding: 1em;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid black;
+}
+
+.card-body {
+    text-align: center;
+    margin: 0 1em;
+}
+
+.card-body .story-line {
+    text-align: left;
+    font-size: 16px;
+    font-weight: normal;
+}

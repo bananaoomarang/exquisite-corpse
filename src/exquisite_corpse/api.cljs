@@ -18,3 +18,6 @@
   "Update story on the backend found by its id"
   [id next-line]
   (PATCH (str "/story/" id) { :line next-line }))
+
+(defn get-top-stories []
+  (GET "/stories"))

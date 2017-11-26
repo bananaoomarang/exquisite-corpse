@@ -2,11 +2,12 @@
   (:require
    [reagent.core :refer [atom]]
 
+   [exquisite-corpse.routing :as routing]
    [exquisite-corpse.state :refer [app-state story]]
    [exquisite-corpse.sockets :as sockets]
    [exquisite-corpse.rest :refer [GET POST PATCH]]
    [exquisite-corpse.effects :refer [create-story add-line load-story]]
-   [exquisite-corpse.state-utils :refer [get-story-lines is-finished?]]
+   [exquisite-corpse.state-utils :refer [get-story-lines is-finished? get-story-first-line get-story-authors]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
@@ -40,10 +41,27 @@
 
 (defn line [key line]
   "Display a line"
-  (log (:text line))
   ^{:key key}
 
   [:p.story-line (:text line)])
+
+(defn story-card-opening [{:keys [lines]}]
+  [:div.card-body
+   (map-indexed line (take 3 lines))])
+
+(defn story-card [story]
+  [:div.card { :onClick #(routing/nav! (str "/story/" (:id story)))}
+   [:div.card-title (get-story-first-line story)]
+   [story-card-opening story]])
+
+(defn top-stories []
+  "Displays grid of top stories"
+  [:div.top-stories.cards
+   (for [story (:top-stories @app-state)
+         :let [id (:id story)]]
+
+     ^{:key id}
+     [story-card story])])
 
 (defn app-root []
   (let [story         (:story @app-state)
@@ -69,6 +87,16 @@
            (not= (:user-id @app-state) (:author (last display-lines))))
         [get-typin-box])]]))
 
+(defn browse-root []
+  [:div.browse-container
+   [:h1.text-center "Top Stories"]
+   [top-stories]])
+
 (defn about-root []
   [:div.about-container
    [:p "TODO"]])
+
+(defn four-oh-four-root []
+  [:div.404-container
+   [:h1 "404"]
+   [:p "I'm afraid you've lost me…"]])
