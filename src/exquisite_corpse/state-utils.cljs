@@ -22,3 +22,7 @@
 (defn get-story-authors [{:keys [lines]}]
   (exquisite-corpse.util/log lines)
   (map :author lines))
+
+(defn add-line [{:keys [lines] :as story} text author]
+  "Returns story with text added as a line"
+  (assoc story :lines (conj lines {:text text, :author author})))

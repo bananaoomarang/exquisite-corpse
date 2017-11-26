@@ -1,6 +1,6 @@
 (ns exquisite-corpse.effects
   (:require
-   [cljs.core.async :refer [<!]]
+   [cljs.core.async :refer [<! put!]]
 
    [exquisite-corpse.util :refer [log elog]]
    [exquisite-corpse.state :refer [app-state default-story history]]
@@ -10,14 +10,14 @@
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
-(defn create-story []
+(defn create-story! []
   (go
     (let [story (<! (api/create-story default-story))]
 
       (log story)
       (swap! app-state assoc :story story))))
 
-(defn add-line [line]
+(defn add-line! [line]
   (let [story (:story @app-state)
         id    (:id    story)
         lines (:lines story)
@@ -28,10 +28,10 @@
         (let [new-story (<! (api/update-story id {:author author :text line}))]
           (swap! app-state assoc :story new-story))))))
 
-(defn update-local-story [new-story]
+(defn update-local-story! [new-story]
   (swap! app-state assoc :story new-story))
 
-(defn load-story
+(defn load-story!
   ([]
    (go
      (let [story (<! (api/get-story))]
@@ -44,7 +44,7 @@
 
        (swap! app-state assoc :story story)))))
 
-(defn load-top-stories []
+(defn load-top-stories! []
   (go
     (let [stories (<! (api/get-top-stories))]
 
@@ -52,3 +52,10 @@
 
 (defn nav! [token]
   (.setToken history token))
+
+(defn send-message! [msg]
+  (let [room (:current-room @app-state)]
+    (if-not room
+      (log "Not in a room yet :(")
+
+      (put! (:ws-channel room) msg))))

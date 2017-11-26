@@ -4,7 +4,7 @@
    [goog.history.EventType :as EventType]
    [goog.events :as events]
 
-   [exquisite-corpse.effects :refer [load-story load-top-stories]]
+   [exquisite-corpse.effects :refer [load-story! load-top-stories!]]
    [exquisite-corpse.state :refer [app-state history]]
    [exquisite-corpse.components :refer
     [app-root browse-root about-root four-oh-four-root browse-finished-root browse-unfinished-root]])
@@ -43,23 +43,23 @@
 
   (defroute "/" []
     (swap! app-state assoc :page :home)
-    (load-story))
+    (load-story!))
 
   (defroute "/story" []
     (swap! app-state assoc :page :home)
-    (load-story))
+    (load-story!))
 
   (defroute "/story/:id" [id]
     (swap! app-state assoc :page :home)
     (when-not (= (-> @app-state :story :id) id)
-      (load-story id)))
+      (load-story! id)))
 
   (defroute "/browse" []
     (swap! app-state assoc :page :browse))
 
   (defroute "/browse/finished" []
     (swap! app-state assoc :page :browse-finished)
-    (load-top-stories))
+    (load-top-stories!))
 
   (defroute "/browse/unfinished" []
     (swap! app-state assoc :page :browse-unfinished))

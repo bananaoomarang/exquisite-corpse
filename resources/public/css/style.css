@@ -108,3 +108,25 @@ h1, h2 {
     font-size: 16px;
     font-weight: normal;
 }
+
+.browse-container {
+    margin-top: 10em;
+    overflow: hidden;
+    width: 30em;
+    margin: 10em auto;
+}
+
+.browse-container .browse-container-links {
+    text-align: center;
+}
+
+h1.clickable, h2.clickable, h3.clickable{
+    transition: transform ease-in-out 0.1s;
+}
+
+h1.clickable:hover, h1.clickable:focus,
+h2.clickable:hover, h2.clickable:focus,
+h3.clickable:hover, h3.clickable:focus {
+    cursor: pointer;
+    /*transform: translateX(10px)*/
+}

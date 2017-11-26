@@ -3,16 +3,18 @@
    [chord.client :refer [ws-ch]]
    [cljs.core.async :as async :refer [>! <! put! chan close!]]
 
-   [exquisite-corpse.effects :refer [update-local-story]]
+   [exquisite-corpse.effects :refer [update-local-story!]]
    [exquisite-corpse.state :refer [app-state]]
+   [exquisite-corpse.state-utils :refer [add-line]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
-  (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
+  (:require-macros
+   [cljs.core.async.macros :refer [go go-loop alt!]]))
 
-(defn handle-user-action [story id action]
+(defn handle-user-action [user-id action]
   (let [type (:type action)
         body (:body action)]
     (condp = type
-      :add-line (update-local-story (assoc-in @app-state [:story :lines] (:line body)))
+      :add-line (update-local-story! (add-line (:story @app-state) (:line body) user-id))
       :ping     (log "pong")
 
       (log (str "Unexpected user action: " type)))))
@@ -26,7 +28,7 @@
     :user-joined (log (str "User joined: "  user-id))
     :user-left   (log (str "User left :(: " user-id))
     :it-you      (handle-joined             user-id)
-    :user-action (handle-user-action story user-id message)
+    :user-action (handle-user-action user-id message)
 
     (log (str "Unrecognized message type :(: " type))))
 
@@ -52,14 +54,6 @@
         (do
           (receive-messages ws-channel)
           (swap! app-state assoc :current-room {:id id :ws-channel ws-channel}))))))
-
-(defn send-message! [app-state msg]
-  (let [room (:current-room @app-state)]
-    (if-not room
-      (log "Not in a room yet :(")
-
-      (go
-        (>! (:ws-channel room) msg)))))
 
 (defn handle-room-switch [new-id]
   (let [room (:current-room @app-state)]

@@ -3,9 +3,8 @@
    [reagent.core :refer [atom]]
 
    [exquisite-corpse.state :refer [app-state story]]
-   [exquisite-corpse.sockets :as sockets]
    [exquisite-corpse.rest :refer [GET POST PATCH]]
-   [exquisite-corpse.effects :refer [create-story add-line load-story nav!]]
+   [exquisite-corpse.effects :refer [create-story! add-line! load-story! nav! send-message!]]
    [exquisite-corpse.state-utils :refer [get-story-lines is-finished? get-story-first-line get-story-authors]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
@@ -27,10 +26,9 @@
                              (reset! val ""))]])))
 
 (def get-typin-box (text-input "Then what?" (fn [val]
-                                              (add-line val)
-                                              (sockets/send-message! app-state
-                                                                     {:type :add-line
-                                                                      :body {:line val}}))))
+                                              (add-line! val)
+                                              (send-message! {:type :add-line
+                                                              :body {:line val}}))))
 (defn email-please []
   [:form
    [:input.textarea {:placeholder "email"
@@ -74,8 +72,8 @@
 
      [:div.btn-group.text-center
       (button "Load random" (fn [_]
-                                    (load-story)))
-      (button "Create new" create-story)]
+                                    (load-story!)))
+      (button "Create new" create-story!)]
 
      [:div.story-wrapper
       (map-indexed line display-lines)]
@@ -87,17 +85,18 @@
         [get-typin-box])]]))
 
 (defn browse-root []
-  [:div
-   [:h1.clickable {:onClick #(nav! (str "/browse/finished"))} "Finished Stories"]
-   [:h1.clickable {:onClick #(nav! (str "/browse/unfinished"))} "Unfinished Stories"]])
+  [:div.browse-container
+   [:div.browse-container-links
+    [:h1.clickable {:onClick #(nav! (str "/browse/finished"))} "Finished Stories"]
+    [:h1.clickable {:onClick #(nav! (str "/browse/unfinished"))} "Unfinished Stories"]]])
 
 (defn browse-finished-root []
-  [:div.browse-container
+  [:div.browse-finished-container
    [:h1.text-center "Top Stories"]
    [top-stories]])
 
 (defn browse-unfinished-root []
-  [:div.browse-container
+  [:div.browse-unfinished-container
    [:h1.text-center "These need some work…"]
    [:h2 "TODO"]])
 
