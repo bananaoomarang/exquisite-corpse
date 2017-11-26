@@ -19,5 +19,5 @@
   [id next-line]
   (PATCH (str "/story/" id) { :line next-line }))
 
-(defn get-top-stories []
-  (GET "/stories"))
+(defn get-top-stories [finished?]
+  (GET "/stories" { :finished? finished? }))

@@ -98,7 +98,7 @@
 (defn browse-unfinished-root []
   [:div.browse-unfinished-container
    [:h1.text-center "These need some work…"]
-   [:h2 "TODO"]])
+   [top-stories]])
 
 (defn about-root []
   [:div.about-container

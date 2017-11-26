@@ -59,10 +59,11 @@
 
   (defroute "/browse/finished" []
     (swap! app-state assoc :page :browse-finished)
-    (load-top-stories!))
+    (load-top-stories! true))
 
   (defroute "/browse/unfinished" []
-    (swap! app-state assoc :page :browse-unfinished))
+    (swap! app-state assoc :page :browse-unfinished)
+    (load-top-stories! false))
 
   (defroute "/about" []
     (swap! app-state assoc :page :about))

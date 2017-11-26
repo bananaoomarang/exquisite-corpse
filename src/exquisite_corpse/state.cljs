@@ -3,6 +3,7 @@
   (:import goog.History))
 
 (def default-story {:max-line-count 10
+                    :finished false
                     :lines [{:author "Anon" :text "Once upon a time…"}]})
 
 (defonce story (atom default-story))

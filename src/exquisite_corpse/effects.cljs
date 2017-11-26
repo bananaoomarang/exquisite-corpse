@@ -44,9 +44,9 @@
 
        (swap! app-state assoc :story story)))))
 
-(defn load-top-stories! []
+(defn load-top-stories! [finished?]
   (go
-    (let [stories (<! (api/get-top-stories))]
+    (let [stories (<! (api/get-top-stories finished?))]
 
       (swap! app-state assoc :top-stories stories))))
 

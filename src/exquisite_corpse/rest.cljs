@@ -3,6 +3,8 @@
    [goog.net.XhrIo :as xhr]
    [cljs.core.async :as async :refer [>! <! put! chan close!]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
+  (:import goog.Uri
+           goog.Uri.QueryData)
 
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop alt!]]))
@@ -39,16 +41,24 @@
 (defn- req [method url & rest]
   (let [ch  (chan 1)
         url (str API url)
-        body (first rest)]
+        body (first rest)
+        params (second rest)
+        uri (Uri. url)]
+
+    (when params
+      (.setQueryData uri (.createFromMap QueryData (clj->js params))))
 
     (if body
-      (make-xhr! ch method url body)
-      (make-xhr! ch method url))
+      (make-xhr! ch method uri body)
+      (make-xhr! ch method uri))
 
     ch))
 
-(defn GET [url]
-  (req "GET" url))
+(defn GET
+  ([url]
+   (req "GET" url))
+  ([url params]
+   (req "GET" url false params)))
 
 (defn POST [url body]
   (req "POST" url body))
