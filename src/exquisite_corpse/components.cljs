@@ -2,11 +2,10 @@
   (:require
    [reagent.core :refer [atom]]
 
-   [exquisite-corpse.routing :as routing]
    [exquisite-corpse.state :refer [app-state story]]
    [exquisite-corpse.sockets :as sockets]
    [exquisite-corpse.rest :refer [GET POST PATCH]]
-   [exquisite-corpse.effects :refer [create-story add-line load-story]]
+   [exquisite-corpse.effects :refer [create-story add-line load-story nav!]]
    [exquisite-corpse.state-utils :refer [get-story-lines is-finished? get-story-first-line get-story-authors]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
@@ -50,7 +49,7 @@
    (map-indexed line (take 3 lines))])
 
 (defn story-card [story]
-  [:div.card { :onClick #(routing/nav! (str "/story/" (:id story)))}
+  [:div.card.clickable { :onClick #(nav! (str "/story/" (:id story)))}
    [:div.card-title (get-story-first-line story)]
    [story-card-opening story]])
 
@@ -88,9 +87,19 @@
         [get-typin-box])]]))
 
 (defn browse-root []
+  [:div
+   [:h1.clickable {:onClick #(nav! (str "/browse/finished"))} "Finished Stories"]
+   [:h1.clickable {:onClick #(nav! (str "/browse/unfinished"))} "Unfinished Stories"]])
+
+(defn browse-finished-root []
   [:div.browse-container
    [:h1.text-center "Top Stories"]
    [top-stories]])
+
+(defn browse-unfinished-root []
+  [:div.browse-container
+   [:h1.text-center "These need some work…"]
+   [:h2 "TODO"]])
 
 (defn about-root []
   [:div.about-container

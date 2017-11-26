@@ -79,13 +79,13 @@ h1, h2 {
     width: 20em;
 }
 
-.card:hover, .card:focus {
+.card.clickable:hover, .card.clickable:focus {
     cursor: pointer;
     background-color: #c9c9c9;
     outline: none;
 }
 
-.card:active {
+.card.clickable:active {
     background-color: #686868;
     color: #fff;
 }

@@ -5,16 +5,11 @@
    [goog.events :as events]
 
    [exquisite-corpse.effects :refer [load-story load-top-stories]]
-   [exquisite-corpse.state :refer [app-state story]]
-   [exquisite-corpse.components :refer [app-root browse-root about-root four-oh-four-root]])
-  (:import goog.History)
+   [exquisite-corpse.state :refer [app-state history]]
+   [exquisite-corpse.components :refer
+    [app-root browse-root about-root four-oh-four-root browse-finished-root browse-unfinished-root]])
   (:require-macros
    [secretary.core :refer [defroute]]))
-
-(defonce history (History.))
-
-(defn nav! [token]
-  (.setToken history token))
 
 (defn hook-browser-navigation! []
   (doto history
@@ -24,12 +19,22 @@
     (.setEnabled true)))
 
 (defmulti current-page #(@app-state :page))
+
 (defmethod current-page :home []
   [app-root])
+
 (defmethod current-page :browse []
   [browse-root])
+
+(defmethod current-page :browse-finished []
+  [browse-finished-root])
+
+(defmethod current-page :browse-unfinished []
+  [browse-unfinished-root])
+
 (defmethod current-page :about []
   [about-root])
+
 (defmethod current-page :404 []
   [four-oh-four-root])
 
@@ -50,8 +55,14 @@
       (load-story id)))
 
   (defroute "/browse" []
-    (swap! app-state assoc :page :browse)
+    (swap! app-state assoc :page :browse))
+
+  (defroute "/browse/finished" []
+    (swap! app-state assoc :page :browse-finished)
     (load-top-stories))
+
+  (defroute "/browse/unfinished" []
+    (swap! app-state assoc :page :browse-unfinished))
 
   (defroute "/about" []
     (swap! app-state assoc :page :about))

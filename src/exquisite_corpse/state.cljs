@@ -1,5 +1,6 @@
 (ns exquisite-corpse.state
-  (:require [reagent.core :as reagent :refer [atom]]))
+  (:require [reagent.core :as reagent :refer [atom]])
+  (:import goog.History))
 
 (def default-story {:max-line-count 10
                     :lines [{:author "Anon" :text "Once upon a time…"}]})
@@ -11,3 +12,5 @@
                           :current-room nil
                           :story        default-story
                           :top-stories  []}))
+
+(defonce history (History.))

@@ -3,7 +3,7 @@
    [cljs.core.async :refer [<!]]
 
    [exquisite-corpse.util :refer [log elog]]
-   [exquisite-corpse.state :refer [app-state default-story]]
+   [exquisite-corpse.state :refer [app-state default-story history]]
    [exquisite-corpse.api :as api]
    [exquisite-corpse.state-utils :refer [is-finished?]])
 
@@ -49,3 +49,6 @@
     (let [stories (<! (api/get-top-stories))]
 
       (swap! app-state assoc :top-stories stories))))
+
+(defn nav! [token]
+  (.setToken history token))
