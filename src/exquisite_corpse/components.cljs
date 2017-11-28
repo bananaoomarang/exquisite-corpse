@@ -10,7 +10,7 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
 (defn button [text handler]
-  [:button.btn {:onClick handler} text])
+  [:button.btn {:on-click handler} text])
 
 (defn text-input [placeholder submit-handler]
    (let [val (atom "")]
@@ -47,7 +47,7 @@
    (map-indexed line (take 3 lines))])
 
 (defn story-card [story]
-  [:div.card.clickable { :onClick #(nav! (str "/story/" (:id story)))}
+  [:div.card.clickable { :on-click #(nav! (str "/story/" (:id story)))}
    [:span.card-lil-info "Readers: " (:user-count story)]
    [:div.card-title (get-story-first-line story)]
    [story-card-opening story]])
@@ -70,12 +70,7 @@
 
     [:div
      [:div.text-center.title
-      [:h1 (:title @app-state)]]
-
-     [:div.btn-group.text-center
-      (button "Load random" (fn [_]
-                                    (load-story!)))
-      (button "Create new" create-story!)]
+      [:h1.clickable {:on-click #(nav! "/")} (:title @app-state)]]
 
      [:h3.text-center "Readers: " user-count]
 
@@ -88,25 +83,38 @@
            (not= (:user-id @app-state) (:author (last display-lines))))
         [get-typin-box])]]))
 
+(defn toolbar []
+  [:div.btn-group.text-center
+   (button "Load random" (fn [_]
+                           (load-story!)))
+   (button "Create new" create-story!)])
+
+(defn or-foot []
+  [:div.or-foot-container
+   [:h1.text-center "Or…"]
+   [toolbar]])
+
 (defn browse-root []
   [:div.browse-container
    [:div.browse-container-links
-    [:h1.clickable {:onClick #(nav! (str "/browse/finished"))} "Finished Stories"]
-    [:h1.clickable {:onClick #(nav! (str "/browse/unfinished"))} "Unfinished Stories"]]])
+    [:h1.clickable {:on-click #(nav! (str "/browse/unfinished"))} "Unfinished Stories"]
+    [:h1.clickable {:on-click #(nav! (str "/browse/finished"))} "Finished Stories"]]])
 
 (defn browse-finished-root []
   [:div.browse-finished-container
    [:h1.text-center "Top Stories"]
    (if (= 0 (count (:top-stories @app-state)))
      [:h2.text-center "Nothing here :("]
-     [top-stories])])
+     [top-stories])
+   [or-foot]])
 
 (defn browse-unfinished-root []
   [:div.browse-unfinished-container
    [:h1.text-center "These need some work…"]
    (if (= 0 (count (:top-stories @app-state)))
      [:h2.text-center "Nothing here :("]
-     [top-stories])])
+     [top-stories])
+   [or-foot]])
 
 (defn about-root []
   [:div.about-container

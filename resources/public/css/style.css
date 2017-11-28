@@ -101,7 +101,13 @@ h1, h2 {
 .card-lil-info {
     float: right;
     font-size: 14px;
-    padding-right: 4px;
+    padding: 0 4px;
+    border-bottom: 1px solid #000;
+    border-left: 1px solid #000;
+}
+
+.card.clickable:active > .card-lil-info {
+    border-color: #fff;
 }
 
 .card-body {

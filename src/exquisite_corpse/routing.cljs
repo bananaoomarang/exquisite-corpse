@@ -20,7 +20,7 @@
 
 (defmulti current-page #(@app-state :page))
 
-(defmethod current-page :home []
+(defmethod current-page :app []
   [app-root])
 
 (defmethod current-page :browse []
@@ -42,15 +42,14 @@
   (secretary/set-config! :prefix "#")
 
   (defroute "/" []
-    (swap! app-state assoc :page :home)
-    (load-story!))
+    (swap! app-state assoc :page :browse))
 
   (defroute "/story" []
-    (swap! app-state assoc :page :home)
+    (swap! app-state assoc :page :app)
     (load-story!))
 
   (defroute "/story/:id" [id]
-    (swap! app-state assoc :page :home)
+    (swap! app-state assoc :page :app)
     (when-not (= (-> @app-state :story :id) id)
       (load-story! id)))
 
