@@ -13,7 +13,8 @@
 
 (defn- get-response-body [event]
   (let [headers      (js->clj (-> event .-target .getResponseHeaders))
-        content-type (get headers "Content-Type")]
+        content-type (get headers "content-type")]
+
     (if (and
          (not (nil? content-type))
          (clojure.string/includes? content-type "application/json"))

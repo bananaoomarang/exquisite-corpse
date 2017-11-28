@@ -19,15 +19,19 @@
 
       (log (str "Unexpected user action: " type)))))
 
-(defn handle-joined [user-id]
+(defn handle-joined [user-id user-count]
   (log "Hey, you're" user-id)
-  (swap! app-state assoc :user-id user-id))
+  (swap! app-state assoc :user-id user-id :user-count user-count))
 
-(defn message-router [story {:keys [type message user-id]}]
+(defn message-router [story {:keys [type message user-id user-count]}]
   (condp = type
-    :user-joined (log (str "User joined: "  user-id))
-    :user-left   (log (str "User left :(: " user-id))
-    :it-you      (handle-joined             user-id)
+    :user-joined (do
+                   (log (str "User joined: "  user-id))
+                   (swap! app-state assoc :user-count user-count))
+    :user-left  (do
+                  (log (str "User left :(: " user-id))
+                  (swap! app-state assoc :user-count user-count))
+    :it-you      (handle-joined user-id user-count)
     :user-action (handle-user-action user-id message)
 
     (log (str "Unrecognized message type :(: " type))))

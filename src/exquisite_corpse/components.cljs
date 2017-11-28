@@ -93,12 +93,16 @@
 (defn browse-finished-root []
   [:div.browse-finished-container
    [:h1.text-center "Top Stories"]
-   [top-stories]])
+   (if (= 0 (count (:top-stories @app-state)))
+     [:h2.text-center "Nothing here :("]
+     [top-stories])])
 
 (defn browse-unfinished-root []
   [:div.browse-unfinished-container
    [:h1.text-center "These need some work…"]
-   [top-stories]])
+   (if (= 0 (count (:top-stories @app-state)))
+     [:h2.text-center "Nothing here :("]
+     [top-stories])])
 
 (defn about-root []
   [:div.about-container
