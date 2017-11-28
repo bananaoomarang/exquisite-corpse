@@ -48,6 +48,7 @@
 
 (defn story-card [story]
   [:div.card.clickable { :onClick #(nav! (str "/story/" (:id story)))}
+   [:span.card-lil-info "Readers: " (:user-count story)]
    [:div.card-title (get-story-first-line story)]
    [story-card-opening story]])
 
@@ -64,6 +65,7 @@
   (let [story         (:story @app-state)
         line-count    (count (:lines story))
         id            (:id story)
+        user-count    (:user-count @app-state)
         display-lines (get-story-lines story)]
 
     [:div
@@ -74,6 +76,8 @@
       (button "Load random" (fn [_]
                                     (load-story!)))
       (button "Create new" create-story!)]
+
+     [:h3.text-center "Readers: " user-count]
 
      [:div.story-wrapper
       (map-indexed line display-lines)]
