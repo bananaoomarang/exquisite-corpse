@@ -12,6 +12,7 @@
                           :user-id      nil
                           :current-room nil
                           :story        default-story
-                          :top-stories  []}))
+                          :top-stories  []
+                          :active-stories []}))
 
 (defonce history (History.))

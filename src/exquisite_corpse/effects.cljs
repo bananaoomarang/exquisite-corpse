@@ -50,6 +50,12 @@
 
       (swap! app-state assoc :top-stories stories))))
 
+(defn load-active-stories! []
+  (go
+    (let [stories (<! (api/get-active-stories))]
+
+      (swap! app-state assoc :active-stories stories))))
+
 (defn nav! [token]
   (.setToken history token))
 

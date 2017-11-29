@@ -20,4 +20,8 @@
   (PATCH (str "/story/" id) { :line next-line }))
 
 (defn get-top-stories [finished?]
-  (GET "/stories" { :finished? finished? }))
+  (GET "/stories/top" { :finished? finished? }))
+
+(defn get-active-stories []
+  (println "gettin em")
+  (GET "/stories/active"))
