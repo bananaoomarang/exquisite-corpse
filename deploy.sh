@@ -3,7 +3,7 @@
 # @ me
 git co gh-pages
 git reset --hard master
-lein do clean, cljsbuild once min
+ENV=production lein do clean, cljsbuild once min
 rm -rf dev src target figwheel_server.log LICENSE project.clj README.md deploy.sh
 cp -rv resources/public/* .
 rm -rf resources
