@@ -8,7 +8,12 @@
    [exquisite-corpse.state-utils :refer [add-line]]
    [exquisite-corpse.util :refer [log elog json-serialize]])
   (:require-macros
-   [cljs.core.async.macros :refer [go go-loop alt!]]))
+   [cljs.core.async.macros :refer [go go-loop alt!]]
+   [exquisite-corpse.macros :refer [is-dev?]]))
+
+(def socket-url (if (is-dev?)
+                  "ws://localhost:3000/chord"
+                  "wss://wordsports.xyz/api/chord"))
 
 (defn handle-user-action [user-id action]
   (let [type (:type action)
@@ -51,7 +56,7 @@
 
 (defn init-websocket [id]
   (go
-    (let [{:keys [ws-channel error]} (<! (ws-ch (str "ws://localhost:3000/chord/" id) {:format :transit-json}))]
+    (let [{:keys [ws-channel error]} (<! (ws-ch (str socket-url "/" id) {:format :transit-json}))]
       (if error
         (elog error)
 
