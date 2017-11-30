@@ -7,9 +7,10 @@
            goog.Uri.QueryData)
 
   (:require-macros
-   [cljs.core.async.macros :refer [go go-loop alt!]]))
+   [cljs.core.async.macros :refer [go go-loop alt!]]
+   [exquisite-corpse.macros :refer [is-dev?]]))
 
-(def API "http://wordsports.xyz/api")
+(def API (if (is-dev?) "http://localhost:3000" "https://wordsports.xyz/api"))
 
 (defn- get-response-body [event]
   (let [headers      (js->clj (-> event .-target .getResponseHeaders))

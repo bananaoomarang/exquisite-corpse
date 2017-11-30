@@ -23,5 +23,4 @@
   (GET "/stories/top" { :finished? finished? }))
 
 (defn get-active-stories []
-  (println "gettin em")
   (GET "/stories/active"))
