@@ -9,7 +9,7 @@
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop alt!]]))
 
-(def API "http://localhost:3000")
+(def API "http://wordsports.xyz/api")
 
 (defn- get-response-body [event]
   (let [headers      (js->clj (-> event .-target .getResponseHeaders))
