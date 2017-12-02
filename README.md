@@ -1,5 +1,7 @@
-# exquisite-corpse [WIP]
+# Exquisite Corpse (frontend) [WIP]
 
 Online game based on the surrealist game [exquisite corpse](https://en.wikipedia.org/wiki/Exquisite_corpse). Stay tuned for an accompanying, multi-part tutorial on how to build an app like this in Clojure!
 
 http://exquisite.wordsports.xyz
+
+Accompanying API server located at: https://github.com/bananaoomarang/exquisite-corpse-server
